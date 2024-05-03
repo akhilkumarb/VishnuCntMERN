@@ -1,0 +1,270 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./Main.css";
+
+export default function Main() {
+  const [commentInput, setCommentInput] = useState("");
+  const [tweets, setTweets] = useState([]);
+  const [Loginuser, setUser] = useState([]);
+  const [tweetBody, setTweetBody] = useState("");
+  const [tweetImg, settweetImg] = useState("");
+
+  useEffect(() => {
+    fetchTweets();
+  }, []);
+
+  const fetchTweets = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+    
+      const response = await axios.get("http://localhost:5000/home",config);
+      console.log(response);
+      console.log(response.data);
+      const dataArray = response.data;
+
+      const loginUser = dataArray.find((data) => data.loginUser);
+      const tweetsData = dataArray.filter(
+        (data) => data.post && data.user && data.comment
+      );
+      const tweets = tweetsData.map((data) => ({
+        post: data.post,
+        user: data.user,
+        comment: data.comment,
+      }));
+
+      console.log("fetch home data:", { loginUser, tweets });
+      setTweets(tweets);
+      setUser(loginUser.loginUser);
+    } catch (error) {
+      console.error("Error fetching tweets:", error);
+    }
+  };
+
+  const uploadTweet = async (event) => {
+    event.preventDefault();
+    const loginUserIdU = Loginuser._id;
+    try {
+      const response = await axios.post("http://localhost:5000/upload", {
+        tweetBody,
+        tweetImg,
+        loginUserIdU,
+      });
+      if (response.status !== 201) {
+        throw new Error("Failed to comments the post");
+      }
+    } catch (error) {
+      console.log("error in uploading tweet", error);
+    }
+  };
+
+  const handleLike = async (postId, userId, event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/likes", {
+        postId,
+        userId,
+      });
+
+      if (response.status !== 201) {
+        throw new Error("Failed to like the post");
+      }
+      setTweets((prevTweets) =>
+        prevTweets.map((tweet) => {
+          if (tweet.post._id === postId) {
+            return {
+              ...tweet,
+              post: {
+                ...tweet.post,
+                likesCnt: tweet.post.likesCnt + 1,
+              },
+            };
+          }
+          return tweet;
+        })
+      );
+
+      const result = response.data;
+      console.log("Like added:", result);
+    } catch (error) {
+      console.error("Error liking the post:", error);
+    }
+  };
+
+  const handleComment = async (postId, userId, comment, username, userImg, event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/comments", {
+        postId,
+        userId,
+        comment,
+        username,
+        userImg,
+      });
+
+      if (response.status !== 201) {
+        throw new Error("Failed to comments the post");
+      }
+      setTweets((prevTweets) =>
+        prevTweets.map((tweet) => {
+          if (tweet.post._id === postId) {
+            return {
+              ...tweet,
+              post: {
+                ...tweet.post,
+                commentsCnt: tweet.post.commentsCnt + 1,
+              },
+            };
+          }
+          return tweet;
+        })
+      );
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
+  const handleBookmark = async (tweetId, LoginUserId, event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:5000/bookmark", {
+        tweetId,
+        LoginUserId,
+      });
+      if (response.status !== 201) {
+        throw new Error("Failed to bookmark the post");
+      }
+    } catch (error) {
+      console.log("error for bookmark(main.js):", error);
+    }
+  };
+
+  const navigate = useNavigate();
+  const handleViewDetails = (tweet) => {
+    navigate(`/home/${tweet}`);
+  };
+
+  return (
+    <main>
+      <div className="tweet_box">
+        <div className="tweet-profile">
+          <div className="post_profile-image">
+            <img
+              src={Loginuser.profileUrl}
+              alt={Loginuser.name}
+              id="tweetImg"
+            />
+          </div>
+          <div className="profileUser">
+            <h2>@{Loginuser.name}</h2>
+          </div>
+        </div>
+        <div className="tweet-input">
+          <input
+            type="text"
+            placeholder={`What's happening, ${Loginuser.name}?`}
+            id="tweetBody"
+            onChange={(e) => setTweetBody(e.target.value)}
+          />
+
+          <div className="img-upload">
+            <input
+              type="text"
+              placeholder="Enter Image URL"
+              onChange={(e) => settweetImg(e.target.value)}
+            />
+          </div>
+          <button className="upload-btn" onClick={uploadTweet}>
+            Tweet
+          </button>
+        </div>
+      </div>
+
+      <div className="post-container">
+        {tweets.map((tweet, index) => (
+          <div className="post" key={index}>
+            <div className="postdetails">
+              <div className="post-img-name">
+                <div className="post_profile-image">
+                  <img src={tweet.user.profileUrl} alt={tweet.user.name} />
+                </div>
+
+                <h2>@{tweet.user.name}</h2>
+              </div>
+              <div className="post_body">
+                <div className="post_header">
+                  <div className="post_header-discription">
+                    <p>{tweet.post.tweetBody}</p>
+                  </div>
+                </div>
+                <button
+                  className="imgButton"
+                  onClick={() => handleViewDetails(tweet.post._id)}
+                >
+                  <img
+                    style={{
+                      width: "400px",
+                      height: "250px",
+                    }}
+                    src={tweet.post.imgUrl}
+                    alt="tweet-img"
+                  />
+                </button>
+                <div className="post_footer">
+                  <div>
+                    <button
+                      onClick={(e) => {
+                        console.log("likes:", tweet.post._id, Loginuser._id);
+                        handleLike(tweet.post._id, Loginuser._id, e);
+                      }}
+                    >
+                      ({tweet.post.likesCnt})
+                      <i class="fa-regular fa-thumbs-up"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Add your comment"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                    />
+                    <button
+                      onClick={(e) =>
+                        handleComment(
+                          tweet.post._id,
+                          Loginuser._id,
+                          commentInput,
+                          Loginuser.name,
+                          Loginuser.profileUrl,
+                          e
+                        )
+                      }
+                    >
+                      <i class="fa-solid fa-comment-dots"></i> (
+                      {tweet.post.commentsCnt})
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      onClick={(e) =>
+                        handleBookmark(tweet.post._id, Loginuser._id, e)
+                      }
+                    >
+                      <i class="fa-solid fa-bookmark"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+}
