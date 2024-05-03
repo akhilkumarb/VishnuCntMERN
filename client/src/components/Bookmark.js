@@ -73,27 +73,29 @@ export default function Bookmark() {
         postId,
         userId,
       });
-
-      if (response.status !== 201) {
-        throw new Error("Failed to like the post");
+      if (response.status === 200 || response.status === 201) {
+        const { action, newLike, message } = response.data;
+        console.log(`${message}:`, newLike);
+        setTweets((prevTweets) =>
+          prevTweets.map((tweet) => {
+            if (tweet.post._id === postId) {
+              return {
+                ...tweet,
+                post: {
+                  ...tweet.post,
+                  likesCnt:
+                    action === "like"
+                      ? tweet.post.likesCnt + 1
+                      : tweet.post.likesCnt - 1,
+                },
+              };
+            }
+            return tweet;
+          })
+        );
+      } else {
+        throw new Error("Failed to process the like action");
       }
-      setTweets((prevTweets) =>
-        prevTweets.map((tweet) => {
-          if (tweet.post._id === postId) {
-            return {
-              ...tweet,
-              post: {
-                ...tweet.post,
-                likesCnt: tweet.post.likesCnt + 1,
-              },
-            };
-          }
-          return tweet;
-        })
-      );
-
-      const result = response.data;
-      console.log("Like added:", result);
     } catch (error) {
       console.error("Error liking the post:", error);
     }
@@ -202,84 +204,80 @@ export default function Bookmark() {
         ) : (
           tweets.map((tweet, index) => (
             <div className="post" key={index}>
-              <div className="postdetails">
-                <div className="post-img-name">
-                  <div className="post_profile-image">
-                    <img src={tweet.user.profileUrl} alt={tweet.user.name} />
-                  </div>
-                  <div className="post_header-text">
-                    <h2>
-                      {tweet.user.name}
-                      <span className="header-icon-section">
-                        <span className="material-icons post_badge">
-                          verified
-                        </span>
-                        @{tweet.user.name}
-                      </span>
-                    </h2>
+              <div className="post-img-name">
+                <div className="post_profile-image">
+                  <img src={tweet.user.profileUrl} alt={tweet.user.name} />
+                </div>
+                <div className="post_header-text">
+                  <h2>
+                    {tweet.user.name}
+                    
+                  </h2>
+                </div>
+              </div>
+              <div className="post_body">
+                <div className="post_header">
+                  <div className="post_header-discription">
+                    <p>{tweet.post.tweetBody}</p>
                   </div>
                 </div>
-                <div className="post_body">
-                  <div className="post_header">
-                    <div className="post_header-discription">
-                      <p>{tweet.post.tweetBody}</p>
-                    </div>
-                  </div>
-                  <button
-                    className="imgButton"
-                    onClick={() => handleViewDetails(tweet.post._id)}
-                  >
-                    <img
-                      style={{
-                        width: "400px",
-                        height: "250px",
+                <button
+                  className="imgButton"
+                  onClick={() => handleViewDetails(tweet.post._id)}
+                >
+                  <img
+                    style={{
+                      width: "400px",
+                      height: "250px",
+                    }}
+                    src={tweet.post.imgUrl}
+                    alt="tweet-img"
+                  />
+                </button>
+                <div className="post_footer">
+                  <div>
+                    <button
+                      onClick={(e) => {
+                        console.log("likes:", tweet.post._id, Loginuser._id);
+                        handleLike(tweet.post._id, Loginuser._id, e);
                       }}
-                      src={tweet.post.imgUrl}
-                      alt="tweet-img"
+                    >
+                      ({tweet.post.likesCnt})
+                      <i class="fa-regular fa-thumbs-up"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Add your comment"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
                     />
-                  </button>
-                  <div className="post_footer">
-                    <div>
-                      <button
-                        onClick={(e) => {
-                          console.log("likes:", tweet.post._id, Loginuser._id);
-                          handleLike(tweet.post._id, Loginuser._id, e);
-                        }}
-                      >
-                        Like ({tweet.post.likesCnt})
-                      </button>
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Add your comment"
-                        value={commentInput}
-                        onChange={(e) => setCommentInput(e.target.value)}
-                      />
-                      <button
-                        onClick={(e) =>
-                          handleComment(
-                            tweet.post._id,
-                            Loginuser._id,
-                            commentInput,
-                            Loginuser.name,
-                            Loginuser.profileUrl,
-                            e
-                          )
-                        }
-                      >
-                        Comment ({tweet.post.commentsCnt})
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        onClick={(e) =>
-                          handleBookmark(tweet.post._id, Loginuser._id, e)
-                        }
-                      >
-                        Bookmark
-                      </button>
-                    </div>
+                    <button
+                      className="custom-button"
+                      onClick={(e) =>
+                        handleComment(
+                          tweet.post._id,
+                          Loginuser._id,
+                          commentInput,
+                          Loginuser.name,
+                          Loginuser.profileUrl,
+                          e
+                        )
+                      }
+                    >
+                      <i class="fa-solid fa-comment-dots"></i> (
+                      {tweet.post.commentsCnt})
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      onClick={(e) =>
+                        handleBookmark(tweet.post._id, Loginuser._id, e)
+                      }
+                    >
+                      <i class="fa-solid fa-bookmark"></i>
+                    </button>
                   </div>
                 </div>
               </div>

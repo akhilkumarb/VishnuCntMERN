@@ -68,27 +68,29 @@ export default function LikedTweets() {
         postId,
         userId,
       });
-
-      if (response.status !== 201) {
-        throw new Error("Failed to like the post");
+      if (response.status === 200 || response.status === 201) {
+        const { action, newLike, message } = response.data;
+        console.log(`${message}:`, newLike);
+        setTweets((prevTweets) =>
+          prevTweets.map((tweet) => {
+            if (tweet.post._id === postId) {
+              return {
+                ...tweet,
+                post: {
+                  ...tweet.post,
+                  likesCnt:
+                    action === "like"
+                      ? tweet.post.likesCnt + 1
+                      : tweet.post.likesCnt - 1,
+                },
+              };
+            }
+            return tweet;
+          })
+        );
+      } else {
+        throw new Error("Failed to process the like action");
       }
-      setTweets((prevTweets) =>
-        prevTweets.map((tweet) => {
-          if (tweet.post._id === postId) {
-            return {
-              ...tweet,
-              post: {
-                ...tweet.post,
-                likesCnt: tweet.post.likesCnt + 1,
-              },
-            };
-          }
-          return tweet;
-        })
-      );
-
-      const result = response.data;
-      console.log("Like added:", result);
     } catch (error) {
       console.error("Error liking the post:", error);
     }
@@ -197,7 +199,6 @@ export default function LikedTweets() {
         ) : (
           tweets.map((tweet, index) => (
             <div className="post" key={index}>
-              <div className="postdetails">
                 <div className="post-img-name">
                   <div className="post_profile-image">
                     <img src={tweet.user.profileUrl} alt={tweet.user.name} />
@@ -205,12 +206,7 @@ export default function LikedTweets() {
                   <div className="post_header-text">
                     <h2>
                       {tweet.user.name}
-                      <span className="header-icon-section">
-                        <span className="material-icons post_badge">
-                          verified
-                        </span>
-                        @{tweet.user.name}
-                      </span>
+                      
                     </h2>
                   </div>
                 </div>
@@ -277,7 +273,6 @@ export default function LikedTweets() {
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           ))
         )}

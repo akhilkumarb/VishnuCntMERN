@@ -60,18 +60,16 @@ export default function Mypost() {
       console.log("error in uploading tweet", error);
     }
   };
-
-  const handleLike = async (postId, userId, event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:5000/likes", {
-        postId,
-        userId,
-      });
-
-      if (response.status !== 201) {
-        throw new Error("Failed to like the post");
-      }
+const handleLike = async (postId, userId, event) => {
+  event.preventDefault();
+  try {
+    const response = await axios.post("http://localhost:5000/likes", {
+      postId,
+      userId,
+    });
+    if (response.status === 200 || response.status === 201) {
+      const { action, newLike, message } = response.data;
+      console.log(`${message}:`, newLike);
       setTweets((prevTweets) =>
         prevTweets.map((tweet) => {
           if (tweet.post._id === postId) {
@@ -79,21 +77,23 @@ export default function Mypost() {
               ...tweet,
               post: {
                 ...tweet.post,
-                likesCnt: tweet.post.likesCnt + 1,
+                likesCnt:
+                  action === "like"
+                    ? tweet.post.likesCnt + 1
+                    : tweet.post.likesCnt - 1,
               },
             };
           }
           return tweet;
         })
       );
-
-      const result = response.data;
-      console.log("Like added:", result);
-    } catch (error) {
-      console.error("Error liking the post:", error);
+    } else {
+      throw new Error("Failed to process the like action");
     }
-  };
-
+  } catch (error) {
+    console.error("Error liking the post:", error);
+  }
+};
   const handleComment = async (
     postId,
     userId,
@@ -193,25 +193,16 @@ export default function Mypost() {
       <div className="post-container">
         <h1>My Posts: </h1>
         {tweets.length === 0 ? (
-  <h2>No Posts Made..!</h2>
-) : ( 
-        tweets.map((tweet, index) => (
-          <div className="post" key={index}>
-            <div className="postdetails">
+          <h2>No Posts Made..!</h2>
+        ) : (
+          tweets.map((tweet, index) => (
+            <div className="post" key={index}>
               <div className="post-img-name">
                 <div className="post_profile-image">
                   <img src={tweet.user.profileUrl} alt={tweet.user.name} />
                 </div>
                 <div className="post_header-text">
-                  <h2>
-                    {tweet.user.name}
-                    <span className="header-icon-section">
-                      <span className="material-icons post_badge">
-                        verified
-                      </span>
-                      @{tweet.user.name}
-                    </span>
-                  </h2>
+                  <h2>{tweet.user.name}</h2>
                 </div>
               </div>
               <div className="post_body">
@@ -241,7 +232,8 @@ export default function Mypost() {
                         handleLike(tweet.post._id, Loginuser._id, e);
                       }}
                     >
-                      Like ({tweet.post.likesCnt})
+                      ({tweet.post.likesCnt})
+                      <i class="fa-regular fa-thumbs-up"></i>
                     </button>
                   </div>
                   <div>
@@ -252,6 +244,7 @@ export default function Mypost() {
                       onChange={(e) => setCommentInput(e.target.value)}
                     />
                     <button
+                      className="custom-button"
                       onClick={(e) =>
                         handleComment(
                           tweet.post._id,
@@ -263,7 +256,8 @@ export default function Mypost() {
                         )
                       }
                     >
-                      Comment ({tweet.post.commentsCnt})
+                      <i class="fa-solid fa-comment-dots"></i> (
+                      {tweet.post.commentsCnt})
                     </button>
                   </div>
                   <div>
@@ -272,15 +266,14 @@ export default function Mypost() {
                         handleBookmark(tweet.post._id, Loginuser._id, e)
                       }
                     >
-                      Bookmark
+                      <i class="fa-solid fa-bookmark"></i>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-        )) )} 
+          ))
+        )}
       </div>
     </main>
   );

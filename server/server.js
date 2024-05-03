@@ -294,7 +294,12 @@ app.post("/likes", async (req, res) => {
     // Prevent duplicate likes
     const existingLike = await Like.findOne({ postId, userId });
     if (existingLike) {
-      return res.status(409).send("Already liked");
+       await Like.deleteOne({ postId, userId });
+       await posts.findByIdAndUpdate(postId, { $inc: { likesCnt: -1 } });
+       return res
+         .status(200)
+         .json({ message: "Like removed", action: "unlike" });
+
     }
     // Create a new like
     const newLike = new Like({ postId, userId });
@@ -302,7 +307,8 @@ app.post("/likes", async (req, res) => {
     await posts.findByIdAndUpdate(postId, {
       $inc: { likesCnt: 1 },
     });
-    res.status(201).json(newLike);
+    res.status(201).json({ message: "Like added", action: "like", newLike });
+
   } catch (error) {
     res
       .status(500)

@@ -70,31 +70,34 @@ export default function Main() {
         postId,
         userId,
       });
-
-      if (response.status !== 201) {
-        throw new Error("Failed to like the post");
+      if (response.status === 200 || response.status === 201) {
+        const { action, newLike, message } = response.data;
+        console.log(`${message}:`, newLike);
+        setTweets((prevTweets) =>
+          prevTweets.map((tweet) => {
+            if (tweet.post._id === postId) {
+              return {
+                ...tweet,
+                post: {
+                  ...tweet.post,
+                  likesCnt:
+                    action === "like"
+                      ? tweet.post.likesCnt + 1
+                      : tweet.post.likesCnt - 1,
+                },
+              };
+            }
+            return tweet;
+          })
+        );
+      } else {
+        throw new Error("Failed to process the like action");
       }
-      setTweets((prevTweets) =>
-        prevTweets.map((tweet) => {
-          if (tweet.post._id === postId) {
-            return {
-              ...tweet,
-              post: {
-                ...tweet.post,
-                likesCnt: tweet.post.likesCnt + 1,
-              },
-            };
-          }
-          return tweet;
-        })
-      );
-
-      const result = response.data;
-      console.log("Like added:", result);
     } catch (error) {
       console.error("Error liking the post:", error);
     }
   };
+
 
   const handleComment = async (postId, userId, comment, username, userImg, event) => {
     event.preventDefault();
@@ -188,7 +191,6 @@ export default function Main() {
       <div className="post-container">
         {tweets.map((tweet, index) => (
           <div className="post" key={index}>
-            <div className="postdetails">
               <div className="post-img-name">
                 <div className="post_profile-image">
                   <img src={tweet.user.profileUrl} alt={tweet.user.name} />
@@ -234,7 +236,7 @@ export default function Main() {
                       value={commentInput}
                       onChange={(e) => setCommentInput(e.target.value)}
                     />
-                    <button
+                    <button className="custom-button"
                       onClick={(e) =>
                         handleComment(
                           tweet.post._id,
@@ -261,7 +263,6 @@ export default function Main() {
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         ))}
       </div>

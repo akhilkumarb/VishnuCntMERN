@@ -34,7 +34,6 @@ export default function Post() {
    <div className="main">
      <div className="post-container">
        <div className="post">
-         <div className="postdetails">
            <div className="post-img-name">
              <div className="post_profile-image">
                <img
@@ -45,10 +44,7 @@ export default function Post() {
              <div className="post_header-text">
                <h2>
                  {post[0].userData.name}
-                 <span className="header-icon-section">
-                   <span className="material-icons post_badge">verified</span>@
-                   {post[0].userData.name}
-                 </span>
+                 
                </h2>
              </div>
            </div>
@@ -61,7 +57,6 @@ export default function Post() {
              <img src={post[0].post.imgUrl} alt="tweet-img" />
              <div className="post_footer"></div>
            </div>
-         </div>
        </div>
      </div>
      <div className="likes-comments">
@@ -93,7 +88,7 @@ export default function Post() {
              </div>
            </div>
          ))}
-         ;
+         
        </div>
      </div>
    </div>

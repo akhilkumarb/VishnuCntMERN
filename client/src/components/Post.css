@@ -1,5 +1,5 @@
 .main {
-  padding-left: 370px;
+  padding-left: 400px;
   flex: 0.5;
   border-right: 1px solid var(--twitter-background-color);
   min-width: 600px;
@@ -40,12 +40,16 @@ main::-webkit-scrollbar {
   border-radius: 50%;
   height: 40px;
 }
+.likes-comments{
+  padding-left: 150px;
+}
 
 .tweet_box {
   padding-bottom: 10px;
   border-bottom: 8px solid var(--twitter-background-color);
   padding-right: 10px;
 }
+
 
 .tweet_box form {
   display: flex;
@@ -87,14 +91,13 @@ main::-webkit-scrollbar {
 
 .post {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   border: 2px solid black;
+  border-radius: 13px;
   padding-bottom: 10px;
 }
 
-.postdetails{
-  min-width: 590px;
-}
+
 
 .post_body img {
   width: 450px;
@@ -133,10 +136,8 @@ main::-webkit-scrollbar {
   font-size: 15px;
 }
 
-.post_body {
-  flex: 1;
-  padding: 10px;
-  border: 2px solid black;
+.post_body{
+  padding-left: 20px;
 }
 
 .post_profile-image {
