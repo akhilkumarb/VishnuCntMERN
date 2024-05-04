@@ -23,7 +23,10 @@ export default function Main() {
         },
       };
     
-      const response = await axios.get("http://localhost:5000/home",config);
+      const response = await axios.get(
+        process.env.REACT_APP_API + "/home",
+        config
+      );
       console.log(response);
       console.log(response.data);
       const dataArray = response.data;

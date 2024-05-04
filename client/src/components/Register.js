@@ -21,12 +21,15 @@ export default function Register() {
 
     try {
       const { name, email, password, profileUrl } = data;
-      const response = await axios.post("http://localhost:5000/register", {
-        register_Name: name,
-        register_email: email,
-        register_password: password,
-        profileUrl: profileUrl,
-      });
+      const response = await axios.post(
+        process.env.REACT_APP_API + "/register",
+        {
+          register_Name: name,
+          register_email: email,
+          register_password: password,
+          profileUrl: profileUrl,
+        }
+      );
       alert(response.data);
     } catch (error) {
       if (error.response) {

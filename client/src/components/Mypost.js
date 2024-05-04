@@ -23,7 +23,7 @@ export default function Mypost() {
         },
       };
       const response = await axios.get(
-        "http://localhost:5000/home/myposts",
+        process.env.REACT_APP_API + "/home/myposts",
         config
       );
       const dataArray = response.data;

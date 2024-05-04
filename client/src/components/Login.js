@@ -15,7 +15,7 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/login", data);
+      const res = await axios.post(process.env.REACT_APP_API+"/login", data);
       if (res) {
         console.log(res.data.token);
         localStorage.setItem("token", res.data.token);

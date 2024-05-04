@@ -23,7 +23,7 @@ export default function LikedTweets() {
         },
       };
       const response = await axios.get(
-        "http://localhost:5000/home/likedtweets",
+        process.env.REACT_APP_API +"/home/likedtweets",
         config
       );
       const dataArray = response.data;

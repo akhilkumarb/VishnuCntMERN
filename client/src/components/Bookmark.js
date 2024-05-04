@@ -24,7 +24,7 @@ export default function Bookmark() {
       };
 
       const response = await axios.get(
-        "http://localhost:5000/home/bookmark",
+        process.env.REACT_APP_API+"/home/bookmark",
         config
       );
       console.log(response);

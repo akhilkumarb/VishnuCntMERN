@@ -15,7 +15,9 @@ export default function Post() {
 
   const fetchPost = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/home/${postId}`);
+      const response = await axios.get(
+        process.env.REACT_APP_API + `/home/${postId}`
+      );
       const postData = response.data;
       console.log(postData);
       setPost(postData);
