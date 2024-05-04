@@ -111,7 +111,7 @@ app.get("/home", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user.id;
     let loginUser = await logins.findById(userId);
-    const tweets = await posts.find();
+    const tweets = await posts.find().sort({ createdAt: -1 });
     const allTweets = [];
     for (const post of tweets) {
       const uid = post.userid;
@@ -150,7 +150,7 @@ app.get("/home/myposts", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user.id;
     let loginUser = await logins.findById(userId);
-    const tweets = await posts.find({ userid: userId });
+    const tweets = await posts.find({ userid: userId }).sort({ createdAt: -1 });;
     const allTweets = [];
     for (const post of tweets) {
       const uid = post.userid;
@@ -188,7 +188,9 @@ app.get("/home/likedtweets", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user.id;
     let loginUser = await logins.findById(userId);
-    const tweets = await posts.find({ userid: userId, likesCnt: { $gt: 0 } });
+    const tweets = await posts
+      .find({ userid: userId, likesCnt: { $gt: 0 } })
+      .sort({ createdAt: -1 });;
     const allTweets = [];
     for (const post of tweets) {
       const uid = post.userid;
