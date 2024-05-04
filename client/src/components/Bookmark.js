@@ -53,7 +53,7 @@ export default function Bookmark() {
     event.preventDefault();
     const loginUserIdU = Loginuser._id;
     try {
-      const response = await axios.post("http://localhost:5000/upload", {
+      const response = await axios.post(process.env.REACT_APP_API + "/upload", {
         tweetBody,
         tweetImg,
         loginUserIdU,
@@ -69,7 +69,7 @@ export default function Bookmark() {
   const handleLike = async (postId, userId, event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/likes", {
+      const response = await axios.post(process.env.REACT_APP_API + "/likes", {
         postId,
         userId,
       });
@@ -111,13 +111,16 @@ export default function Bookmark() {
   ) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/comments", {
-        postId,
-        userId,
-        comment,
-        username,
-        userImg,
-      });
+      const response = await axios.post(
+        process.env.REACT_APP_API + "/comments",
+        {
+          postId,
+          userId,
+          comment,
+          username,
+          userImg,
+        }
+      );
 
       if (response.status !== 201) {
         throw new Error("Failed to comments the post");
@@ -144,10 +147,13 @@ export default function Bookmark() {
   const handleBookmark = async (tweetId, LoginUserId, event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/bookmark", {
-        tweetId,
-        LoginUserId,
-      });
+      const response = await axios.post(
+        process.env.REACT_APP_API + "/bookmark",
+        {
+          tweetId,
+          LoginUserId,
+        }
+      );
       if (response.status !== 201) {
         throw new Error("Failed to bookmark the post");
       }
