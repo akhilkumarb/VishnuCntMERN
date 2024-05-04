@@ -210,7 +210,7 @@ export default function Main() {
                 >
                   <img
                     style={{
-                      width: "550px",
+                      width: "551px",
                       height: "400px",
                     }}
                     src={tweet.post.imgUrl}
