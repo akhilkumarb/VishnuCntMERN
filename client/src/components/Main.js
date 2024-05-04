@@ -189,7 +189,7 @@ export default function Main() {
       </div>
 
       <div className="post-container">
-        {tweets.map((tweet, index) => (
+        {tweets.slice().reverse().map((tweet, index) => (
           <div className="post" key={index}>
               <div className="post-img-name">
                 <div className="post_profile-image">
@@ -210,8 +210,8 @@ export default function Main() {
                 >
                   <img
                     style={{
-                      width: "400px",
-                      height: "250px",
+                      width: "550px",
+                      height: "400px",
                     }}
                     src={tweet.post.imgUrl}
                     alt="tweet-img"
